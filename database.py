@@ -17,6 +17,11 @@ class Database(object):
         """Return an ordered list of data values, in the same order as the FIPS codes."""
         raise NotImplementedError()
 
+class YearVariableDatabase(Database):
+    def get_year(self, variable):
+        """Return the year associated with the given variable."""
+        raise NotImplementedError()
+
 class CSVDatabase(Database):
     def __init__(self, filepath, fips_column, get_description):
         """

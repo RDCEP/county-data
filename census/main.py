@@ -15,9 +15,14 @@ def get_description(variable):
 
                 return "%s (%s; US total: %s).  Source: %s" % (description, others[0], others[2], source)
 
+class CensusDatabase(database.CSVDatabase, database.YearVariableDatabase):
+    def get_year(self, variable):
+        """Return the year associated with the given variable."""
+        return 2000 + int(variable[-2:])
+
 def load():
     datapath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "DataSet.txt")
-    return database.CSVDatabase(datapath, 'fips', get_description)
+    return CensusDatabase(datapath, 'fips', get_description)
 
 if __name__ == '__main__':
     census = load()
