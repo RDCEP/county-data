@@ -22,7 +22,7 @@ class CensusDatabase(database.CSVDatabase, database.YearVariableDatabase):
 
 def load():
     datapath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "DataSet.txt")
-    return CensusDatabase(datapath, 'fips', get_description)
+    return CensusDatabase(datapath, 'fips', get_description, lambda var: "unknown")
 
 if __name__ == '__main__':
     census = load()

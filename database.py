@@ -9,6 +9,10 @@ class Database(object):
         """Text description of a variable."""
         raise NotImplementedError()
 
+    def get_unit(self, variable):
+        """Canonical unit for variable."""
+        raise NotImplementedError()
+
     def get_fips(self):
         """Return an ordered list of FIPS codes for the data."""
         raise NotImplementedError()
@@ -28,12 +32,13 @@ class TaggedVariableDatabase(object):
         raise NotImplementedError()
 
 class CSVDatabase(Database):
-    def __init__(self, filepath, fips_column, get_description):
+    def __init__(self, filepath, fips_column, get_description, get_unitstr):
         """
         get_description: get_description(variable) returns the description of that variable.
         """
         self.filepath = filepath
         self.get_description = get_description
+        self.get_unitstr = get_unitstr
 
         with open(filepath, 'r') as fp:
             reader = csv.reader(fp)
@@ -46,6 +51,9 @@ class CSVDatabase(Database):
 
     def describe_variable(self, variable):
         return self.get_description(variable)
+
+    def get_unit(self, variable):
+        return self.get_unitstr(variable)
 
     def get_fips(self):
         return self.df.index.values

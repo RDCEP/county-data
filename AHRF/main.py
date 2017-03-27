@@ -14,6 +14,10 @@ class AHRFDatabase(database.Database, database.YearVariableDatabase, database.Ta
         """Text description of a variable."""
         return fields[variable].get('description', None)
 
+    def get_unit(self, variable):
+        """Canonical unit for variable."""
+        return "unknown"
+
     def get_fips(self):
         """Return an ordered list of FIPS codes for the data."""
         fipses = self.get_data('f00002')
