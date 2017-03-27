@@ -17,9 +17,14 @@ class Database(object):
         """Return an ordered list of data values, in the same order as the FIPS codes."""
         raise NotImplementedError()
 
-class YearVariableDatabase(Database):
+class YearVariableDatabase(object):
     def get_year(self, variable):
         """Return the year associated with the given variable."""
+        raise NotImplementedError()
+
+class TaggedVariableDatabase(object):
+    def get_tags(self, variable):
+        """Return a list of tags for each variable."""
         raise NotImplementedError()
 
 class CSVDatabase(Database):
