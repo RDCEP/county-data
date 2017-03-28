@@ -5,7 +5,7 @@ import database
 fields = {} # {code: {start:, length:, decimals:, ftype:, year:, tags:, description:}}
 awashstarts = [1, 91, 497, 21683, 21729, 21735, 25782, 32307, 32167, 32183, 32199]
 
-class AHRFDatabase(database.Database, database.YearVariableDatabase, database.TaggedVariableDatabase):
+class AHRFDatabase(database.Database, database.TaggedVariableDatabase):
     def get_variables(self):
         """Return a list of variables."""
         return fields.keys()
@@ -20,10 +20,14 @@ class AHRFDatabase(database.Database, database.YearVariableDatabase, database.Ta
 
     def get_fips(self):
         """Return an ordered list of FIPS codes for the data."""
-        fipses = self.get_data('f00002')
-        return map(lambda fips: str(int(fips)), fipses)
+        fipses = self.get_data('f00002', None)
+        return database.standardize_fips(fipses)
 
-    def get_data(self, variable):
+    def get_years(self, variable):
+        """Return a list of years available."""
+        return fields[variable].get('year', None)
+
+    def get_data(self, variable, year):
         """Return an ordered list of data values, in the same order as the FIPS codes."""
         start = fields[variable]['start']
         end = fields[variable]['start'] + fields[variable]['length']
@@ -32,10 +36,6 @@ class AHRFDatabase(database.Database, database.YearVariableDatabase, database.Ta
             if fields[variable]['ftype'] == float:
                 return map(lambda datum: float(datum.strip()) if datum.strip() != '.' else np.nan, data)
             return data
-
-    def get_year(self, variable):
-        """Return the year associated with the given variable."""
-        return fields[variable].get('year', None)
 
     def get_tags(self, variable):
         """Return a list of tags for each variable."""
@@ -84,4 +84,4 @@ if __name__ == '__main__':
     print ahrf.get_variables()[:10]
     print ahrf.describe_variable('f0081176')
     print ahrf.get_fips()[:10]
-    print ahrf.get_data('f0081176')[:10]
+    print ahrf.get_data('f0081176', 2010)[:10]
