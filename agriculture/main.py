@@ -7,7 +7,7 @@ masterpath = os.path.join(pathhere, "Master_Spreadsheet_All.csv")
 class MatrixDatabase(database.IDReferenceCSVDatabase):
     def __init__(self, filepath, crop, unit, variable):
         super(MatrixDatabase, self).__init__(filepath, 'cnty_FID', masterpath, 'FID', 'FIPS',
-                                             None, None, variable_filter=lambda vars: [variable],
+                                             variable_filter=lambda vars: [variable],
                                              get_varyears=lambda df, var: [int(vv[-4:]) for vv in df if vv[:len(variable)] == variable] if var == variable else None,
                                              get_datarows=lambda df, var, yr: df['%s_%d' % (var, yr)])
         self.crop = crop
@@ -36,7 +36,7 @@ class MatrixDatabase(database.IDReferenceCSVDatabase):
 class USDADatabase(database.ObservationsCSVDatabase):
     def __init__(self, filepath, crop, isirr, report):
         super(USDADatabase, self).__init__(filepath, None, 'Year',
-                                           None, None, variable_filter=lambda vars: ['Value'])
+                                           variable_filter=lambda vars: ['Value'])
         self.crop = crop
         self.isirr = isirr
         self.report = report
@@ -62,7 +62,7 @@ def load():
     dbs = []
     prefixes = []
 
-    dbs.append(database.MatrixCSVDatabase(masterpath, 'FIPS', lambda var: None, lambda var: None))
+    dbs.append(database.MatrixCSVDatabase(masterpath, 'FIPS'))
     prefixes.append('agmaster')
 
     for filename in glob.glob(os.path.join(pathhere, "allyears/*.csv")):

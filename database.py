@@ -1,5 +1,6 @@
-import csv, pandas
+import os, csv, pandas
 import numpy as np
+from metainfo import *
 
 def standardize_fips(fips):
     if isinstance(fips, list) or isinstance(fips, np.ndarray) or isinstance(fips, pandas.core.series.Series):
@@ -10,18 +11,27 @@ def standardize_fips(fips):
 
     return standardize_fips(str(int(fips)))
 
+def localpath(relative):
+    return os.path.join(os.path.dirname(os.path.realpath(__file__)), relative)
+
 class Database(object):
+    def __init__(self):
+        self.metainfo = Metainfo()
+
+    def set_metainfo(self, metainfo):
+        self.metainfo = metainfo
+
     def get_variables(self):
         """Return a list of variables."""
         raise NotImplementedError()
 
     def describe_variable(self, variable):
         """Text description of a variable."""
-        raise NotImplementedError()
+        return self.metainfo.describe_variable(variable)
 
     def get_unit(self, variable):
         """Canonical unit for variable."""
-        raise NotImplementedError()
+        return self.metainfo.get_unit(variable)
 
     def get_fips(self):
         """Return an ordered list of FIPS codes for the data.  FIPS should always be 5 character strings."""
@@ -41,39 +51,28 @@ class TaggedVariableDatabase(object):
         raise NotImplementedError()
 
 class CSVDatabase(Database):
-    def __init__(self, filepath, get_description, get_unitstr,
-                 variable_filter=lambda vars: vars):
-        """
-        get_description: get_description(variable) returns the description of that variable.
-        """
+    def __init__(self, filepath, variable_filter=lambda vars: vars, index_col=False):
         self.filepath = filepath
-        self.get_description = get_description
-        self.get_unitstr = get_unitstr
-
         self.variable_filter = variable_filter
-
-        self.df = pandas.read_csv(filepath)
+        self.df = pandas.read_csv(filepath, index_col=index_col)
 
     def get_variables(self):
         return self.variable_filter(list(self.df))
-
-    def describe_variable(self, variable):
-        return self.get_description(variable)
-
-    def get_unit(self, variable):
-        return self.get_unitstr(variable)
 
     def make_index_column(self, id_func, indexcol='index'):
         self.df[indexcol] = self.df.apply(id_func, axis=1)
         self.df.set_index(indexcol)
 
 class MatrixCSVDatabase(CSVDatabase):
-    def __init__(self, filepath, fips_column, get_description, get_unitstr,
+    def __init__(self, filepath, fips_column,
                  variable_filter=lambda vars: vars, get_varyears=lambda df, var: None,
                  get_datarows=lambda df, var, yr: df[var]):
-        super(MatrixCSVDatabase, self).__init__(filepath, get_description, get_unitstr,
-                                                variable_filter=variable_filter)
-        self.df.set_index(fips_column)
+        with open(filepath, 'rU') as fp:
+            reader = csv.reader(fp)
+            header = reader.next()
+            index_col = header.index(fips_column)
+
+        super(MatrixCSVDatabase, self).__init__(filepath, variable_filter=variable_filter, index_col=index_col)
 
         self.standard_fips = None
         self.get_varyears = get_varyears
@@ -92,10 +91,9 @@ class MatrixCSVDatabase(CSVDatabase):
         return self.get_datarows(self.df, variable, year)
 
 class ObservationsCSVDatabase(CSVDatabase):
-    def __init__(self, filepath, fips_column, year_column, get_description, get_unitstr,
+    def __init__(self, filepath, fips_column, year_column,
                  variable_filter=lambda vars: vars):
-        super(ObservationsCSVDatabase, self).__init__(filepath, get_description, get_unitstr,
-                                                      variable_filter=variable_filter)
+        super(ObservationsCSVDatabase, self).__init__(filepath, variable_filter=variable_filter)
         self.fips_column = fips_column
         self.year_column = year_column
 

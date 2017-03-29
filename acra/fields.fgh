@@ -1,0 +1,4 @@
+longitude: Longitude of county centroid [degrees]
+latitude: Latitude of county centroid [degrees]
+elevation: Elevation at the county centroid [m]
+name: Name of the county [str]
