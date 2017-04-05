@@ -9,6 +9,10 @@ class Metainfo(object):
         """Canonical unit for variable."""
         raise NotImplementedError()
 
+    def get_tags(self, variable):
+        """Return a list of tags for each variable."""
+        return NotImplementedError()
+
 class StoredMetainfo(Metainfo):
     VARFINDER = re.compile(r'^(?P<desc>[^\[]+)\s+(?P<unit>\[([^\]]+)\])')
 
