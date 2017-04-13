@@ -1,0 +1,4 @@
+2008-2012.csv is a merge of county-level election results from
+catalog.data.gov.
+US_County_Level_Presidential_Results_12-16.csv is from
+https://github.com/tonmcg/County_Level_Election_Results_12-16

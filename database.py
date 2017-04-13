@@ -14,6 +14,9 @@ def standardize_fips(fips):
 def localpath(relative):
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), relative)
 
+def variable_filtermap(column2variable):
+    return lambda columns: set(filter(lambda variable: variable is not None, map(column2variable, columns)))
+
 class Database(object):
     def __init__(self):
         self.metainfo = Metainfo()
