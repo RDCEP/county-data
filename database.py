@@ -53,12 +53,17 @@ class Database(object):
         raise NotImplementedError()
 
 class CSVDatabase(Database):
-    def __init__(self, filepath, variable_filter=lambda vars: vars, index_col=False):
+    def __init__(self, filepath, variable_filter=lambda vars: vars, index_col=False, **readkw):
         super(CSVDatabase, self).__init__()
 
         self.filepath = filepath
         self.variable_filter = variable_filter
-        self.df = pandas.read_csv(filepath, index_col=index_col)
+        if filepath[-4:] == '.csv':
+            self.df = pandas.read_csv(filepath, index_col=index_col, **readkw)
+        elif filepath[-5:] == '.xlsx':
+            self.df = pandas.read_excel(filepath, index_col=index_col, **readkw)
+        else:
+            raise RuntimeError("Do not know how to read files of type of " + filepath)
 
     def get_variables(self):
         return self.variable_filter(list(self.df))
@@ -68,8 +73,8 @@ class CSVDatabase(Database):
         self.df.set_index(indexcol)
 
 class StaticCSVDatabase(CSVDatabase):
-    def __init__(self, filepath, fips_column, variable_filter=lambda vars: vars):
-        super(StaticCSVDatabase, self).__init__(filepath, variable_filter=variable_filter)
+    def __init__(self, filepath, fips_column, variable_filter=lambda vars: vars, **readkw):
+        super(StaticCSVDatabase, self).__init__(filepath, variable_filter=variable_filter, **readkw)
         self.fips_column = fips_column
 
     def get_fips(self):
@@ -84,7 +89,7 @@ class StaticCSVDatabase(CSVDatabase):
 class MatrixCSVDatabase(CSVDatabase):
     def __init__(self, filepath, fips_column,
                  variable_filter=lambda vars: vars, get_varyears=lambda df, var: None,
-                 get_datarows=lambda df, var, yr: df[var]):
+                 get_datarows=lambda df, var, yr: df[var], **readkw):
 
         if fips_column is not None:
             with open(filepath, 'rU') as fp:
@@ -92,9 +97,9 @@ class MatrixCSVDatabase(CSVDatabase):
                 header = reader.next()
                 index_col = header.index(fips_column)
 
-            super(MatrixCSVDatabase, self).__init__(filepath, variable_filter=variable_filter, index_col=index_col)
+            super(MatrixCSVDatabase, self).__init__(filepath, variable_filter=variable_filter, index_col=index_col, **readkw)
         else:
-            super(MatrixCSVDatabase, self).__init__(filepath, variable_filter=variable_filter)
+            super(MatrixCSVDatabase, self).__init__(filepath, variable_filter=variable_filter, **readkw)
 
         self.standard_fips = None
         self.get_varyears = get_varyears
@@ -114,8 +119,8 @@ class MatrixCSVDatabase(CSVDatabase):
 
 class ObservationsCSVDatabase(CSVDatabase):
     def __init__(self, filepath, fips_column, year_column,
-                 variable_filter=lambda vars: vars):
-        super(ObservationsCSVDatabase, self).__init__(filepath, variable_filter=variable_filter)
+                 variable_filter=lambda vars: vars, **readkw):
+        super(ObservationsCSVDatabase, self).__init__(filepath, variable_filter=variable_filter, **readkw)
         self.fips_column = fips_column
         self.year_column = year_column
 
@@ -149,6 +154,8 @@ class IDReferenceCSVDatabase(MatrixCSVDatabase):
         return data.loc[self.idorder]
 
 class OrderedDatabase(Database):
+    """Database with the order pre-specified."""
+
     def __init__(self, fips, db):
         super(OrderedDatabase, self).__init__()
 
@@ -171,6 +178,26 @@ class OrderedDatabase(Database):
     @staticmethod
     def use_fips(fipsdb, db):
         return OrderedDatabase(fipsdb.get_fips(), db)
+
+class OrderedVectorDatabase(OrderedDatabase):
+    def __init__(self, vector, variable, year, fips):
+        super(OrderedVectorDatabase, self).__init__(fips, self)
+        self.variable = variable
+        self.vector = vector
+        self.year = year
+
+    def get_variables(self):
+        return self.variable
+
+    def get_years(self, variable):
+        return [self.year]
+
+    def get_data(self, variable, year):
+        return self.vector
+
+    @staticmethod
+    def read_text(filepath, variable, year, fipsdb):
+        return OrderedVectorDatabase(np.loadtxt(filepath), variable, year, fipsdb.get_fips())
 
 class ConcatenatedDatabase(Database):
     """All database must have the same order of fips."""
