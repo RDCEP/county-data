@@ -73,15 +73,19 @@ class CSVDatabase(Database):
         self.df.set_index(indexcol)
 
 class StaticCSVDatabase(CSVDatabase):
-    def __init__(self, filepath, fips_column, variable_filter=lambda vars: vars, **readkw):
+    def __init__(self, filepath, fips_column, variable_filter=lambda vars: vars, year=None, **readkw):
         super(StaticCSVDatabase, self).__init__(filepath, variable_filter=variable_filter, **readkw)
         self.fips_column = fips_column
+        self.year = year
 
     def get_fips(self):
         return self.df[self.fips_column]
 
     def get_years(self, variable):
-        return None
+        if self.year is None:
+            return None
+        else:
+            return [self.year]
 
     def get_data(self, variable, year):
         return self.df[variable]
@@ -319,6 +323,81 @@ class CombinedDatabase(Database):
             return self.get_indices_byfips(fips, data)
 
         data = db.get_data(dbvar, year)
+
+        # Match up the data along the fips
+        return self.get_indices(db, data)
+
+class CombinedYearsDatabase(Database):
+    def __init__(self, dbs, fips):
+        super(CombinedYearsDatabase, self).__init__()
+
+        self.dbs = dbs
+        self.fips = fips
+        self.indices = {} # {db: [indices]}
+
+    def get_variables(self):
+        """Return a list of variables."""
+        variables = set([])
+        for ii in range(len(self.dbs)):
+            variables.update(self.dbs[ii].get_variables())
+
+        return variables
+
+    def get_database(self, variable, year):
+        for db in self.dbs:
+            if year in db.get_years(variable):
+                return db
+
+    def get_indices_byfips(self, dbfips, values):
+        result = np.empty(len(self.fips))
+        for ii in range(len(self.fips)):
+            try:
+                result[ii] = values[dbfips.index(self.fips[ii])]
+            except:
+                result[ii] = np.nan
+
+        return result
+
+    def get_indices(self, db, values):
+        if db not in self.indices:
+            dbfips = list(db.get_fips())
+            indices = np.empty(len(self.fips), dtype=int)
+            for ii in range(len(self.fips)):
+                try:
+                    indices[ii] = dbfips.index(self.fips[ii])
+                except:
+                    indices[ii] = -1
+            self.indices[db] = indices
+
+        return [values.iloc[index] if index != -1 else np.nan for index in self.indices[db]]
+
+    def describe_variable(self, variable):
+        """Text description of a variable."""
+        return self.dbs[0].describe_variable(variable)
+
+    def get_unit(self, variable):
+        """Canonical unit for variable."""
+        return self.dbs[0].get_unit(variable)
+
+    def get_fips(self):
+        """Return an ordered list of FIPS codes for the data."""
+        return self.fips
+
+    def get_years(self, variable):
+        years = []
+        for db in self.dbs:
+            years.extend(db.get_years(variable))
+        return years
+
+    def get_data(self, variable, year):
+        """Return an ordered list of data values, in the same order as the FIPS codes."""
+        db = self.get_database(variable, year)
+
+        if 'get_fipsdata' in dir(db):
+            fips, data = db.get_fipsdata(variable, year)
+            return self.get_indices_byfips(fips, data)
+
+        data = db.get_data(variable, year)
 
         # Match up the data along the fips
         return self.get_indices(db, data)
