@@ -17,28 +17,10 @@ def localpath(relative):
 def variable_filtermap(column2variable):
     return lambda columns: set(filter(lambda variable: variable is not None, map(column2variable, columns)))
 
-class Database(object):
-    def __init__(self):
-        self.metainfo = Metainfo()
-
-    def set_metainfo(self, metainfo):
-        self.metainfo = metainfo
-
+class RawDatabase(object):
     def get_variables(self):
         """Return a list of variables."""
         raise NotImplementedError()
-
-    def describe_variable(self, variable):
-        """Text description of a variable."""
-        return self.metainfo.describe_variable(variable)
-
-    def get_unit(self, variable):
-        """Canonical unit for variable."""
-        return self.metainfo.get_unit(variable)
-
-    def get_tags(self, variable):
-        """Return a list of tags for each variable."""
-        return self.metainfo.get_tags(variable)
 
     def get_fips(self):
         """Return an ordered list of FIPS codes for the data.  FIPS should always be 5 character strings."""
@@ -51,6 +33,25 @@ class Database(object):
     def get_data(self, variable, year):
         """Return an ordered list of data values, in the same order as the FIPS codes."""
         raise NotImplementedError()
+
+class Database(RawDatabase):
+    def __init__(self):
+        self.metainfo = Metainfo()
+
+    def set_metainfo(self, metainfo):
+        self.metainfo = metainfo
+
+    def describe_variable(self, variable):
+        """Text description of a variable."""
+        return self.metainfo.describe_variable(variable)
+
+    def get_unit(self, variable):
+        """Canonical unit for variable."""
+        return self.metainfo.get_unit(variable)
+
+    def get_tags(self, variable):
+        """Return a list of tags for each variable."""
+        return self.metainfo.get_tags(variable)
 
 class CSVDatabase(Database):
     def __init__(self, filepath, variable_filter=lambda vars: vars, index_col=False, **readkw):
