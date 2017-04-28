@@ -5,7 +5,7 @@ import database
 fields = {} # {code: {start:, length:, decimals:, ftype:, year:, tags:, description:}}
 awashstarts = [1, 91, 497, 21683, 21729, 21735, 25782, 32307, 32167, 32183, 32199]
 
-class AHRFDatabase(database.Database, database.TaggedVariableDatabase):
+class AHRFDatabase(database.Database):
     def get_variables(self):
         """Return a list of variables."""
         return fields.keys()

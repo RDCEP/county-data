@@ -16,7 +16,7 @@ def get_description(variable):
                 return "%s (%s; US total: %s).  Source: %s" % (description, others[0], others[2], source)
 
 def load():
-    census = database.MatrixCSVDatabase(database.localpath('census/DataSet.txt'), 'fips',
+    census = database.MatrixCSVDatabase(database.localpath('census/DataSet.csv'), 'fips',
                                         get_varyears=lambda df, var: [2000 + int(var[-2:])])
     census.set_metainfo(database.FunctionalMetainfo(get_description, lambda var: "unknown"))
     return census
