@@ -191,7 +191,7 @@ class OrderedVectorDatabase(OrderedDatabase):
         self.year = year
 
     def get_variables(self):
-        return self.variable
+        return [self.variable]
 
     def get_years(self, variable):
         return [self.year]
