@@ -11,8 +11,3 @@ def load():
         dbs.append(db)
 
     return database.ConcatenatedDatabase(dbs)
-
-if __name__ == '__main__':
-    gw = load()
-    print gw.get_variables()
-    print gw.get_data('drawdown0', 2010)[:10]

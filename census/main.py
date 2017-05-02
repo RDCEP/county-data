@@ -20,10 +20,3 @@ def load():
                                         get_varyears=lambda df, var: [2000 + int(var[-2:])])
     census.set_metainfo(database.FunctionalMetainfo(get_description, lambda var: "unknown"))
     return census
-
-if __name__ == '__main__':
-    census = load()
-    print census.get_variables()
-    print census.describe_variable('POP010210')
-    print census.get_fips()[:10]
-    print census.get_years('POP010210')

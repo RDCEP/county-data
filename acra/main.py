@@ -17,10 +17,3 @@ def load():
     dbs = [centroid, elevation, name]
     prefixes = ['centroid', 'elevation', 'name']
     return database.CombinedDatabase(dbs, prefixes, '.')
-
-if __name__ == '__main__':
-    acra = load()
-    print acra.get_variables()
-    print acra.get_data('elevation.elevation', 2010)[:10]
-    print acra.describe_variable('elevation.elevation')
-    print acra.get_unit('elevation.elevation')

@@ -13,9 +13,3 @@ def load():
     dbs.append(database.StaticCSVDatabase(filepath, 'FIPS', sheetname='2010', year=2010))
 
     return database.CombinedYearsDatabase(dbs, dbs[-1].get_fips())
-
-if __name__ == '__main__':
-    weather = load()
-    print weather.get_variables()
-    print weather.get_years("IR_GW")
-    print weather.get_data("IR_GW", 1990)[:10]

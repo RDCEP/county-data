@@ -58,11 +58,3 @@ def load():
                                            database.variable_filtermap(column2variable_2016), get_varyears_2016, get_datarows_2016)
 
     return database.CombinedDatabase([x20082012, x20122016], ['x20082012', 'x20122016'], '.')
-
-if __name__ == '__main__':
-    db = load()
-    print db.get_variables()
-    print db.get_data('x20082012.PCT_DEM', 2008)[-10:]
-    print db.get_data('x20082012.PCT_DEM', 2012)[-10:]
-    print db.get_data('x20122016.per_dem', 2012)[-10:]
-    print db.get_data('x20122016.per_dem', 2016)[-10:]

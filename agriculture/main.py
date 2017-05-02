@@ -18,7 +18,3 @@ def load():
     prefixes.append("area")
 
     return database.CombinedDatabase(dbs, prefixes, '.')
-
-if __name__ == '__main__':
-    ag = load()
-    print ag.get_variables()

@@ -78,10 +78,3 @@ def load():
                 fields[code]['description'] = chunks[1][:-1]
 
     return AHRFDatabase()
-
-if __name__ == '__main__':
-    ahrf = load()
-    print ahrf.get_variables()[:10]
-    print ahrf.describe_variable('f0081176')
-    print ahrf.get_fips()[:10]
-    print ahrf.get_data('f0081176', 2010)[:10]

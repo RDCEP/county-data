@@ -50,7 +50,7 @@ class USDADatabase(database.ObservationsCSVDatabase):
 
     def get_unit(self, variable):
         if variable == 'Value':
-            if self.report == 'planted':
+            if self.report == 'planted' or self.report == 'harvested':
                 return 'acre'
             if self.report == 'production':
                 if crop == 'cotton':
@@ -93,6 +93,17 @@ def load():
             crop = usdamatch.group(1)
             isirr = usdamatch.group(2)
             report = usdamatch.group(3)
+
+            db = USDADatabase(os.path.join(pathhere, "allyears", filename), crop, isirr, report)
+            dbs.append(db)
+            prefixes.append('%s-%s-%s' % (crop, isirr, report))
+            continue
+
+        usda2007match = re.match(r'([a-z]+)-total-([a-z]+)-2007\.csv', filename)
+        if usda2007match:
+            crop = usda2007match.group(1)
+            isirr = 'total'
+            report = usda2007match.group(2)
 
             db = USDADatabase(os.path.join(pathhere, "allyears", filename), crop, isirr, report)
             dbs.append(db)
