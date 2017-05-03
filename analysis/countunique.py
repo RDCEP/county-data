@@ -15,7 +15,7 @@ for modname in ['AHRF', 'USGS', 'acra', 'agriculture', 'census', 'crime', 'elect
         else:
             allvars[variable] = set(years)
 
-print "Initial count: ", len(allvars)
+print "Initial count: ", len(allvars), np.sum(map(lambda name: len(allvars[name]), allvars))
 
 allvars = {} # hash: [variables]
 for modname in ['AHRF', 'USGS', 'acra', 'agriculture', 'census', 'crime', 'election', 'groundwater']:
