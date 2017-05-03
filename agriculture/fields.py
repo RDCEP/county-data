@@ -67,7 +67,6 @@ def load():
 
     for filename in glob.glob(os.path.join(pathhere, "allyears/*.csv")):
         filename = os.path.basename(filename)
-        print filename
         areamatch = re.match(r'([a-z]+)_area_([a-z]+)_in_acre\.csv', filename)
         if areamatch:
             crop = areamatch.group(1)
