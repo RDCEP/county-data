@@ -268,7 +268,7 @@ class CombinedDatabase(Database):
 
     def get_database(self, variable):
         chunks = variable.split(self.infix)
-        return self.dbs[self.prefixes.index(chunks[0])], chunks[1]
+        return self.dbs[self.prefixes.index(chunks[0])], '.'.join(chunks[1:])
 
     def get_indices_byfips(self, dbfips, values):
         fips = self.dbs[0].get_fips()
