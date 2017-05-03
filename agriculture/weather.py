@@ -21,7 +21,6 @@ def load():
 
     for filename in glob.glob(os.path.join(pathhere, "edds/*.csv")):
         filename = os.path.basename(filename)
-        print filename
 
         filepath = os.path.join(pathhere, "edds", filename)
         db = database.OrderedDatabase.use_fips(fipsdb, SingleVariableDatabase(filepath, filename[:-4]))
