@@ -24,6 +24,7 @@ def load():
 
         filepath = os.path.join(pathhere, "edds", filename)
         db = database.OrderedDatabase.use_fips(fipsdb, SingleVariableDatabase(filepath, filename[:-4]))
+        db.set_metainfo(database.UniformMetainfo(None, 'C day'))
         dbs.append(db)
 
     return database.ConcatenatedDatabase(dbs)

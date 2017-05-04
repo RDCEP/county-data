@@ -8,16 +8,26 @@ def load():
     dbs = []
     prefixes = []
 
-    dbs.append(database.StaticCSVDatabase(os.path.join(pathhere, "irrigatedareas.csv"), 'FIPS'))
+    metainfo = database.StoredMetainfo({'FIPS': dict(unit="name"), 'Alfalfa': dict(unit="acre"), 'Otherhay': dict(unit="acre"), 'Barley': dict(unit="acre"), 'Barley.Winter': dict(unit="acre"), 'Maize': dict(unit="acre"), 'Sorghum': dict(unit="acre"), 'Soybean': dict(unit="acre"), 'Wheat': dict(unit="acre"), 'Wheat.Winter': dict(unit="acre"), 'fips': dict(unit="name"), 'known': dict(unit="acre"), 'total': dict(unit="acre"), 'barley': dict(unit="acre"), 'corn': dict(unit="acre"), 'sorghum': dict(unit="acre"), 'soybeans': dict(unit="acre"), 'wheat': dict(unit="acre"), 'hay': dict(unit="acre")})
+
+    db = database.StaticCSVDatabase(os.path.join(pathhere, "irrigatedareas.csv"), 'FIPS')
+    db.set_metainfo(metainfo)
+    dbs.append(db)
     prefixes.append('irrigatedareas')
 
-    dbs.append(database.StaticCSVDatabase(os.path.join(pathhere, "rainfedareas.csv"), 'FIPS'))
+    db = database.StaticCSVDatabase(os.path.join(pathhere, "rainfedareas.csv"), 'FIPS')
+    db.set_metainfo(metainfo)
+    dbs.append(db)
     prefixes.append('rainfedareas')
 
-    dbs.append(database.StaticCSVDatabase(os.path.join(pathhere, "knownareas.csv"), 'fips'))
+    db = database.StaticCSVDatabase(os.path.join(pathhere, "knownareas.csv"), 'fips')
+    db.set_metainfo(metainfo)
+    dbs.append(db)
     prefixes.append('knownareas')
 
-    dbs.append(database.StaticCSVDatabase(os.path.join(pathhere, "totalareas.csv"), 'FIPS'))
+    db = database.StaticCSVDatabase(os.path.join(pathhere, "totalareas.csv"), 'FIPS')
+    db.set_metainfo(metainfo)
+    dbs.append(db)
     prefixes.append('totalareas')
 
     return database.CombinedDatabase(dbs, prefixes, '.')

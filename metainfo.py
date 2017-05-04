@@ -13,6 +13,19 @@ class Metainfo(object):
         """Return a list of tags for each variable."""
         return NotImplementedError()
 
+class UniformMetainfo(Metainfo):
+    def __init__(self, description, unit):
+        self.description = description
+        self.unit = unit
+
+    def describe_variable(self, variable):
+        """Text description of a variable."""
+        return self.description
+
+    def get_unit(self, variable):
+        """Canonical unit for variable."""
+        return self.unit
+
 class StoredMetainfo(Metainfo):
     VARFINDER = re.compile(r'^(?P<desc>[^\[]+)\s+(?P<unit>\[([^\]]+)\])')
 
@@ -21,11 +34,11 @@ class StoredMetainfo(Metainfo):
 
     def describe_variable(self, variable):
         """Text description of a variable."""
-        return self.catalog.get(variable, dict(description="Missing information"))['description']
+        return self.catalog.get(variable, dict(description="Missing information")).get('description', None)
 
     def get_unit(self, variable):
         """Canonical unit for variable."""
-        return self.catalog.get(variable, dict(unit="unknown"))['unit']
+        return self.catalog.get(variable, dict(unit="unknown")).get('unit', "unknown")
 
     @staticmethod
     def load(filepath):

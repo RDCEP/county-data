@@ -50,11 +50,23 @@ def get_datarows_2016(df, variable, year):
 
     return df[variable]
 
+def get_description(variable):
+    known = dict(OBJECTID="Shapefile ID", AREA="County area", PERIMETER="County perimeter")
+    return known.get(variable, None)
+
+def get_unit(variable):
+    known = dict(OBJECTID="name", DEM="votes", REP="votes", OTH="votes")
+    return known.get(variable, None)
+
 def load():
+    metainfo = database.FunctionalMetainfo(get_description, get_unit)
+
     x20082012 = database.MatrixCSVDatabase(database.localpath("election/2008-2012.csv"), 'FIPS',
                                            database.variable_filtermap(column2variable_2008), get_varyears_2008, get_datarows_2008)
+    x20082012.set_metainfo(metainfo)
 
     x20122016 = database.MatrixCSVDatabase(database.localpath("election/US_County_Level_Presidential_Results_12-16.csv"), 'combined_fips',
                                            database.variable_filtermap(column2variable_2016), get_varyears_2016, get_datarows_2016)
+    x20122016.set_metainfo(metainfo)
 
     return database.CombinedDatabase([x20082012, x20122016], ['x20082012', 'x20122016'], '.')

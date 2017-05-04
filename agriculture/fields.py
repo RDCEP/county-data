@@ -53,16 +53,38 @@ class USDADatabase(database.ObservationsCSVDatabase):
             if self.report == 'planted' or self.report == 'harvested':
                 return 'acre'
             if self.report == 'production':
-                if crop == 'cotton':
+                if self.crop == 'cotton':
                     return '480 LB BALES'
-                if crop in ['maize', 'wheat']:
+                if self.crop in ['maize', 'wheat']:
                     return 'BU'
+
+def master_get_description(variable):
+    known = dict(FIPS="County FIPS code", FID="Region ID", County="County name", State="State name", County_Population='County population', Pop_Water_MGD='Water demand(?)', County_Area_km_sq="County area", Cropland_km_sq="Cropland area", Population_Per_County_Area='Population density')
+    if variable in known:
+        return known[variable]
+
+    return None
+
+def master_get_unit(variable):
+    if variable in ['FIPS', 'FID', 'County', 'State']:
+        return 'name'
+    known = dict(County_Population='people', Pop_Water_MGD='Mgal/day', Population_Per_County_Area='people/km^2')
+    if variable in known:
+        return known[variable]
+
+    if variable[-6:] == '_km_sq':
+        return 'km^2'
+
+    return None
 
 def load():
     dbs = []
     prefixes = []
 
-    dbs.append(database.MatrixCSVDatabase(masterpath, 'FIPS'))
+    master = database.MatrixCSVDatabase(masterpath, 'FIPS')
+    master.set_metainfo(database.FunctionalMetainfo(master_get_description, master_get_unit))
+
+    dbs.append(master)
     prefixes.append('agmaster')
 
     for filename in glob.glob(os.path.join(pathhere, "allyears/*.csv")):

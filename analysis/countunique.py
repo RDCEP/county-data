@@ -1,4 +1,5 @@
 import hashlib, importlib
+import numpy as np
 
 allvars = {} # {name: set()}
 for modname in ['AHRF', 'USGS', 'acra', 'agriculture', 'census', 'crime', 'election', 'groundwater']:
