@@ -63,6 +63,8 @@ class CSVDatabase(Database):
             self.df = pandas.read_csv(filepath, index_col=index_col, **readkw)
         elif filepath[-5:] == '.xlsx':
             self.df = pandas.read_excel(filepath, index_col=index_col, **readkw)
+        elif filepath[-4:] == '.txt':
+            self.df = pandas.read_csv(filepath, index_col=index_col, **readkw)            
         else:
             raise RuntimeError("Do not know how to read files of type of " + filepath)
 
@@ -74,6 +76,8 @@ class CSVDatabase(Database):
         self.df.set_index(indexcol)
 
 class StaticCSVDatabase(CSVDatabase):
+    """A simple CSV file, with a row for every county and a column for every variable."""
+    
     def __init__(self, filepath, fips_column, variable_filter=lambda vars: vars, year=None, **readkw):
         super(StaticCSVDatabase, self).__init__(filepath, variable_filter=variable_filter, **readkw)
         self.fips_column = fips_column
@@ -92,8 +96,11 @@ class StaticCSVDatabase(CSVDatabase):
         return self.df[variable]
 
 class MatrixCSVDatabase(CSVDatabase):
-    def __init__(self, filepath, fips_column,
-                 variable_filter=lambda vars: vars, get_varyears=lambda df, var: None,
+    """CSV file with a row for each county and potentially the same variables repeated over 
+    multiple years in teh columns."""
+    
+    def __init__(self, filepath, fips_column, variable_filter=lambda
+                 vars: vars, get_varyears=lambda df, var: None,
                  get_datarows=lambda df, var, yr: df[var], **readkw):
 
         if fips_column is not None:
@@ -123,6 +130,9 @@ class MatrixCSVDatabase(CSVDatabase):
         return self.get_datarows(self.df, variable, year)
 
 class ObservationsCSVDatabase(CSVDatabase):
+    """A CSV file which contains multiple instances of each county, with different rows
+    referring to different years."""
+    
     def __init__(self, filepath, fips_column, year_column,
                  variable_filter=lambda vars: vars, **readkw):
         super(ObservationsCSVDatabase, self).__init__(filepath, variable_filter=variable_filter, **readkw)
@@ -140,8 +150,54 @@ class ObservationsCSVDatabase(CSVDatabase):
         raise NotImplementedError()
 
     def get_fipsdata(self, variable, year):
+        """Return a tuple of the fips codes available and the data for those corresponding fips codes."""
         rows = self.df[self.year_column] == year
         return self.df[self.fips_column][rows], self.df[variable][rows]
+
+class InterlevedCSVDatabase(CSVDatabase):
+    def __init__(self, filepath, fips_column, filter_column, year, **readkw):
+        super(InterlevedCSVDatabase, self).__init__(filepath, **readkw)
+        self.fips_column = fips_column
+        self.filter_column = filter_column
+        self.year = year
+
+    def describe_variable(self, variable):
+        """Text description of a variable."""
+        column, group = tuple(variable.split('.'))
+        return super(InterlevedCSVDatabase, self).describe_variable(column) + " for group " + group
+
+    def get_unit(self, variable):
+        """Canonical unit for variable."""
+        column, group = tuple(variable.split('.'))
+        return super(InterlevedCSVDatabase, self).get_unit(column)
+
+    def get_fips(self):
+        return self.df[self.fips_column].unique()
+
+    def get_variables(self):
+        variables = list(self.df)
+        variables.remove(self.fips_column)
+        variables.remove(self.filter_column)
+
+        allvars = []
+        for group in self.df[self.filter_column].unique():
+            allvars.extend([variable + '.' + str(group) for variable in variables])
+
+        return allvars
+    
+    def get_years(self, variable):
+        return [self.year]
+
+    def get_data(self, variable, year):
+        ## This would be very slow because of constant re-ordering.  Use get_fipsdata(variable, year)
+        raise NotImplementedError()
+
+    def get_fipsdata(self, variable, year):
+        """Return a tuple of the fips codes available and the data for those corresponding fips codes."""
+        column, group = tuple(variable.split('.'))
+        
+        rows = self.df[self.filter_column] == group
+        return self.df[self.fips_column][rows], self.df[column][rows]
 
 class IDReferenceCSVDatabase(MatrixCSVDatabase):
     def __init__(self, filepath1, id_column1, filepath2, id_column2, fips_column2, *args, **kwargs):
