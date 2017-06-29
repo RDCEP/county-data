@@ -1,0 +1,22 @@
+variable,type,unit,description
+fips,str5,
+av_11,float,people,Agriculture, forestry, fishing and hunting
+av_21,float,people,Mining, quarrying, and oil and gas extraction
+av_22,float,people,Utilities
+av_23,float,people,Construction
+av_31,float,people,Manufacturing
+av_42,float,people,Wholesale trade
+av_44,float,people,Retail trade
+av_48,float,people,Transportation and warehousing
+av_51,float,people,Information
+av_52,float,people,Finance and insurance
+av_53,float,people,Real estate and rental and leasing
+av_54,float,people,Professional and technical services
+av_55,float,people,Management of companies and enterprises
+av_56,float,people,Administrative and waste services
+av_61,float,people,Educational services
+av_62,float,people,Health care and social assistance
+av_71,float,people,Arts, entertainment, and recreation
+av_72,float,people,Accommodation and food services
+av_81,float,people,Other services, except public administration
+av_92,float,people,Public Administration

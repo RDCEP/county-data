@@ -17,6 +17,6 @@ metas = dict(state=dict(description="State Code"),
                 
 def load():
     filepath = database.localpath("ccimpacts/county_damage_mapping_data.csv")
-    db = database.StaticCSVDatabase(filepath, 'County FIPS code', year=2090)
+    db = database.StaticCSVDatabase(filepath, 'fips', year=2090)
     db.set_metainfo(metainfo.StoredMetainfo(metas))
     return db

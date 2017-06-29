@@ -1,4 +1,4 @@
-import yaml, re
+import yaml, re, csv
 
 class Metainfo(object):
     def describe_variable(self, variable):
@@ -48,6 +48,22 @@ class StoredMetainfo(Metainfo):
 
         return StoredMetainfo(catalog)
 
+    @staticmethod
+    def load_csv(filepath, varcol, desccol=None, unitcol=None):
+        catalog = {}
+        with open(filepath, 'r') as fp:
+            reader = csv.reader(fp)
+            header = reader.next()
+            for row in reader:
+                rowinfo = {}
+                if desccol is not None and len(row) > header.index(desccol):
+                    rowinfo['description'] = row[header.index(desccol)]
+                if unitcol is not None and len(row) > header.index(unitcol):
+                    rowinfo['unit'] = row[header.index(unitcol)]
+                catalog[row[header.index(varcol)]] = rowinfo
+
+        return StoredMetainfo(catalog)
+    
     @staticmethod
     def parse(defn):
         matchstr = re.search(StoredMetainfo.VARFINDER, defn)
