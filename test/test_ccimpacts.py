@@ -13,10 +13,11 @@ def test_load(db):
 
 def test_units(db):
     for variable in db.get_variables():
+        print variable
         assert db.get_unit(variable) and db.get_unit(variable) != "unknown"
 
 if __name__ == '__main__':
     mydb = db()
     for variable in mydb.get_variables():
         print variable, mydb.get_unit(variable)
-
+    test_units(mydb)

@@ -1,9 +1,9 @@
 import database, metainfo
 import re
 
-metas = dict(state=dict(description="State Code"),
-             county=dict(description="County Name"),
-             fips=dict(description="County FIPS code"),
+metas = dict(state=dict(description="State Code", unit="none"),
+             county=dict(description="County Name", unit="none"),
+             fips=dict(description="County FIPS code", unit="none"),
              pop2012=dict(description="County Population (in 2012)", unit="people"),
              yieldchange=dict(description="Agricultural Damage (4 major crops)", unit="%"),
              mortchange=dict(description="Mortality", unit="deaths per 100k"),
