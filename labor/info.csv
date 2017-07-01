@@ -1,5 +1,5 @@
 variable,type,unit,description
-fips,str5,
+fips,str5,none
 av_11,float,people,Agriculture, forestry, fishing and hunting
 av_21,float,people,Mining, quarrying, and oil and gas extraction
 av_22,float,people,Utilities
