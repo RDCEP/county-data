@@ -1,4 +1,5 @@
 import os, importlib, csv
+import database
 from cmd import Cmd
 import numpy as np
 
@@ -79,13 +80,32 @@ class Exporter(Cmd):
                 for year in years:
                     data[variable + ':' + str(year)] = np.array(db.get_data(variable, year))
 
-        with open(filepath, 'w') as fp:
-            writer = csv.writer(fp)
-            writer.writerow(['fips'] + data.keys())
-            for ii in range(len(db.get_fips())):
-                row = [db.get_fips()[ii]] + [data[key][ii] for key in data.keys()]
-                writer.writerow(row)
+        try:
+            with open(os.path.expanduser(filepath), 'w') as fp:
+                writer = csv.writer(fp)
+                writer.writerow(['fips'] + data.keys())
+                for ii in range(len(db.get_fips())):
+                    row = [db.get_fips()[ii]] + [data[key][ii] for key in data.keys()]
+                    writer.writerow(row)
+        except Exception as ex:
+            print "Error: " + str(ex)
 
+    def do_import(self, filepath):
+        """Import a database with a FIPS column.
+        Usage: import [file path]
+        """
+        db = database.CSVDatabase.smart_import(filepath)
+        self.loaded[filepath] = db
+        print "Loaded."
+
+    def do_script(self, filepath):
+        try:
+            with open(os.path.expanduser(filepath), 'r') as fp:
+                for line in fp:
+                    self.onecmd(line)
+        except Exception as ex:
+            print "Error: " + str(ex)
+        
     def get_database(self):
         if not self.loaded:
             return None
@@ -93,7 +113,7 @@ class Exporter(Cmd):
         if self.loaded and len(self.loaded) == 1:
             return self.loaded.values()[0]
 
-        return CombinedDatabase(self.loaded.values(), self.loaded.keys(), '.')
+        return database.CombinedDatabase(self.loaded.values(), self.loaded.keys(), '.')
 
     def do_bye(self, line):
         """Close the interface.

@@ -1,9 +1,13 @@
-import os, csv, pandas
+from __future__ import unicode_literals
+import os, csv
 import numpy as np
+import pandas as pd
 from metainfo import *
+from prompt_toolkit import prompt
+from prompt_toolkit.contrib.completers import WordCompleter
 
 def standardize_fips(fips):
-    if isinstance(fips, list) or isinstance(fips, np.ndarray) or isinstance(fips, pandas.core.series.Series):
+    if isinstance(fips, list) or isinstance(fips, np.ndarray) or isinstance(fips, pd.core.series.Series):
         return map(standardize_fips, fips)
 
     if isinstance(fips, str):
@@ -59,12 +63,16 @@ class CSVDatabase(Database):
 
         self.filepath = filepath
         self.variable_filter = variable_filter
+        self.df = CSVDatabase.guess_read_csv(filepath, index_col=index_col, **readkw)
+
+    @staticmethod
+    def guess_read_csv(filepath, **kw):
         if filepath[-4:] == '.csv':
-            self.df = pandas.read_csv(filepath, index_col=index_col, **readkw)
+            return pd.read_csv(filepath, **kw)
         elif filepath[-5:] == '.xlsx':
-            self.df = pandas.read_excel(filepath, index_col=index_col, **readkw)
+            return pd.read_excel(filepath, **kw)
         elif filepath[-4:] == '.txt':
-            self.df = pandas.read_csv(filepath, index_col=index_col, **readkw)            
+            return pd.read_csv(filepath, **kw)            
         else:
             raise RuntimeError("Do not know how to read files of type of " + filepath)
 
@@ -75,6 +83,44 @@ class CSVDatabase(Database):
         self.df[indexcol] = self.df.apply(id_func, axis=1)
         self.df.set_index(indexcol)
 
+    @staticmethod
+    def smart_import(filepath):
+        df = CSVDatabase.guess_read_csv(filepath)
+        column_completer = WordCompleter(list(df))
+        
+        # Try to guess the FIPS column
+        if 'FIPS' in df:
+            fips_column = 'FIPS'
+        elif 'fips' in df:
+            fips_column = 'fips'
+        else:
+            fips_column = prompt('Enter the FIPS column: ', completer=column_completer)
+
+        # Try to guess a year column structure
+        if 'YEAR' in df:
+            year_column = 'YEAR'
+        elif 'year' in df:
+            year_column = 'year'
+        else:
+            year_column = None
+            for year in range(1960, 2050):
+                if str(year) in df:
+                    year_column = 'columns'
+                    break
+
+            if year_column is None:
+                year_column = prompt('How are years represented (none/columns/indexed)? ', completer=WordCompleter(['none', 'columns', 'indexed']))
+                if year_column == 'indexed':
+                    year_column = prompt('Enter the year column: ', completer=column_completer)
+
+        # Instantiate an appropriate class
+        if year_column == 'none':
+            return StaticCSVDatabase(filepath, fips_column)
+        if year_column == 'columns':
+            return MatrixCSVDatabase(filepath, fips_column)
+
+        return ObservationsCSVDatabase(filepath, fips_column, year_column)
+                    
 class StaticCSVDatabase(CSVDatabase):
     """A simple CSV file, with a row for every county and a column for every variable."""
     
@@ -96,8 +142,9 @@ class StaticCSVDatabase(CSVDatabase):
         return self.df[variable]
 
 class MatrixCSVDatabase(CSVDatabase):
-    """CSV file with a row for each county and potentially the same variables repeated over 
-    multiple years in teh columns."""
+    """CSV file with a row for each county and potentially the same
+    variables repeated over multiple years in the columns.
+    """
     
     def __init__(self, filepath, fips_column, variable_filter=lambda
                  vars: vars, get_varyears=lambda df, var: None,
@@ -203,7 +250,7 @@ class IDReferenceCSVDatabase(MatrixCSVDatabase):
     def __init__(self, filepath1, id_column1, filepath2, id_column2, fips_column2, *args, **kwargs):
         super(IDReferenceCSVDatabase, self).__init__(filepath1, id_column1, *args, **kwargs)
 
-        idref = pandas.read_csv(filepath2)
+        idref = pd.read_csv(filepath2)
         self.idorder = idref[id_column2]
         self.fipsorder = standardize_fips(idref[fips_column2])
 
@@ -332,7 +379,7 @@ class CombinedDatabase(Database):
         for ii in range(len(fips)):
             try:
                 result[ii] = values[dbfips.index(fips[ii])]
-            except:
+            except Exception as ex:
                 result[ii] = np.nan
 
         return result
@@ -340,16 +387,16 @@ class CombinedDatabase(Database):
     def get_indices(self, db, values):
         if db not in self.indices:
             fips = self.dbs[0].get_fips()
-            dbfips = db.get_fips()
+            dbfips = pd.Index(db.get_fips())
             indices = np.empty(len(fips), dtype=int)
             for ii in range(len(fips)):
                 try:
-                    indices[ii] = dbfips.index(fips[ii])
-                except:
+                    indices[ii] = dbfips.get_loc(fips[ii])
+                except Exception as ex:
                     indices[ii] = -1
             self.indices[db] = indices
 
-        return [values.iloc[index] if index != -1 else np.nan for index in self.indices[db]]
+        return [values[index] if index != -1 else np.nan for index in self.indices[db]]
 
     def describe_variable(self, variable):
         """Text description of a variable."""
