@@ -396,7 +396,11 @@ class CombinedDatabase(Database):
                     indices[ii] = -1
             self.indices[db] = indices
 
-        return [values[index] if index != -1 else np.nan for index in self.indices[db]]
+        if isinstance(values, pd.Series):
+            return [values.iloc[index] if index != -1 else np.nan for index in self.indices[db]]
+        else:
+            return [values[index] if index != -1 else np.nan for index in self.indices[db]]
+
 
     def describe_variable(self, variable):
         """Text description of a variable."""
