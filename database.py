@@ -202,6 +202,10 @@ class ObservationsCSVDatabase(CSVDatabase):
         return self.df[self.fips_column][rows], self.df[variable][rows]
 
 class InterlevedCSVDatabase(CSVDatabase):
+    """
+    Like an ObservationCSVDatabase, but where each variable type has a
+    given specified year, and there is no year column.
+    """
     def __init__(self, filepath, fips_column, filter_column, year, **readkw):
         super(InterlevedCSVDatabase, self).__init__(filepath, **readkw)
         self.fips_column = fips_column
