@@ -130,7 +130,10 @@ class StaticCSVDatabase(CSVDatabase):
         self.year = year
 
     def get_fips(self):
-        return self.df[self.fips_column]
+        if callable(self.fips_column):
+            return self.fips_column(self.df)
+        else:
+            return self.df[self.fips_column]
 
     def get_years(self, variable):
         if self.year is None:
