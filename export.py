@@ -94,9 +94,12 @@ class Exporter(Cmd):
         """Import a database with a FIPS column.
         Usage: import [file path]
         """
-        db = database.CSVDatabase.smart_import(filepath)
-        self.loaded[filepath] = db
-        print "Loaded."
+        try:
+            db = database.CSVDatabase.smart_import(filepath)
+            self.loaded[filepath] = db
+            print "Loaded."
+        except Exception as ex:
+            print ex
 
     def do_script(self, filepath):
         try:
