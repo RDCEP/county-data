@@ -23,4 +23,8 @@ def test_units(db):
 if __name__ == '__main__':
     mydb = db()
     for variable in mydb.get_variables():
-        print variable, mydb.get_unit(variable)
+        try:
+            unit = mydb.get_unit(variable)
+        except:
+            unit = "unknown"
+        print variable, unit
