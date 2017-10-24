@@ -1,0 +1,1 @@
+Source: self-created, from 5-minute data at http://www.worldclim.org/version1

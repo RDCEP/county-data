@@ -1,0 +1,6 @@
+Source: self-created with original data in
+ - solar:
+Perez, R., P. Ineichen, K. Moore, M.Kmiecik, C. Chain, R. George and F. Vignola (2002):  A New Operational Satellite-to-Irradiance Model.  Solar Energy
+http://www.nrel.gov/gis/cfm/data/GIS_Data_Technology_Specific/United_States/Solar/High_Resolution/Lower_48_DNI_High_Resolution.zip
+ - wind: http://rredc.nrel.gov/wind/pubs/atlas/
+ - shapefile: TIGER/Line 2010

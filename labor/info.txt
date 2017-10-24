@@ -1,6 +1,8 @@
 This directory contained employment data from the Bureau of Labor
 Statistics, over the years 2000 - 2005.
 
+https://www.bls.gov/cew/dataguide.htm
+
 1) lab_cty_00_05: each county appears roughly 4 times. The counties
 appear multiple times because of "ownership" of the sector. These are
 defined via the variable "own_code" as follows:

@@ -1,2 +1,4 @@
-irrigatedareas.txt and rainfedareas.txt are in acres in 2010.
+SOURCE: 
+ - allyears, irrigatedareas.csv, knownareas.csv, rainfedareas.csv, and totalareas.csv: https://quickstats.nass.usda.gov/
+ - edds: self-created, code in https://github.com/jrising/research-common, data from http://www.engr.scu.edu/~emaurer/gridded_obs/index_gridded_obs.html
 

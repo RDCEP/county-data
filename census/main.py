@@ -26,6 +26,18 @@ def get_unit(variable):
         return 'percent'
     if unit == 'SQM':
         return 'mi^2'
+    if unit == 'ABS':
+        return 'people'
+    if unit == 'DOL':
+        return '$'
+    if unit == 'AVG':
+        return 'persons/household'
+    if unit == 'TH$':
+        return '$1000'
+    if unit == 'MIN':
+        return 'minutes'
+    if unit == 'RTE':
+        return 'people/mi^2'
 
     return "unknown"
 
