@@ -19,7 +19,7 @@ class Exporter(Cmd):
 
     def do_load(self, module):
         """Load an available database.
-        Usage: available [DB name]
+        Usage: load [DB name]
         """
         print "Loading " + module + "..."
         try:

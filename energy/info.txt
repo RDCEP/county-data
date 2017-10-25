@@ -1,0 +1,2 @@
+Wind Power:
+1.396 * wind^3 (1.396 converts to W/m^2, on average)
