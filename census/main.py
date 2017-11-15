@@ -27,7 +27,7 @@ def get_unit(variable):
     if unit == 'SQM':
         return 'mi^2'
     if unit == 'ABS':
-        return 'people'
+        return 'number'
     if unit == 'DOL':
         return '$'
     if unit == 'AVG':
