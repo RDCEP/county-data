@@ -17,7 +17,7 @@ def test_units(db):
         if db.get_unit(variable) and db.get_unit(variable) != "unknown":
             known += 1
 
-    assert float(known) / len(db.get_variables()) > .1, "Units only known for %f%%" % (100 * float(known) / len(db.get_variables()))
+    assert known == len(db.get_variables()), "Units only known for %d < %d" % (known, len(db.get_variables()))
 
 if __name__ == '__main__':
     mydb = db()

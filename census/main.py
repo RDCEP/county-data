@@ -27,7 +27,15 @@ def get_unit(variable):
     if unit == 'SQM':
         return 'mi^2'
     if unit == 'ABS':
-        return 'number'
+        if variable == 'STATECOU':
+            return 'name'
+        if variable in ['HSG010212', 'HSD410212']:
+            return 'households'
+        if variable in ['BZA010211', 'NES010211', 'SBO001207']:
+            return 'firms'
+        if variable == 'BPS030212':
+            return 'permits'
+        return 'people'
     if unit == 'DOL':
         return '$'
     if unit == 'AVG':
