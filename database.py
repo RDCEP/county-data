@@ -12,6 +12,8 @@ def standardize_fips(fips):
 
     if isinstance(fips, str):
         return '0' + fips if len(fips) < 5 else fips
+    if np.isnan(fips):
+        return np.nan
 
     return standardize_fips(str(int(fips)))
 
@@ -131,9 +133,15 @@ class StaticCSVDatabase(CSVDatabase):
 
     def get_fips(self):
         if callable(self.fips_column):
-            return self.fips_column(self.df)
+            fips = self.fips_column(self.df)
         else:
-            return self.df[self.fips_column]
+            fips = np.array(self.df[self.fips_column])
+        if fips.dtype == 'int64':
+            return map(lambda x: str(x) if not np.isnan(x) and x > 9999 else ('0' + str(x) if not np.isnan(x) else np.nan), fips)
+        elif fips.dtype == 'float64':
+            return map(lambda x: str(int(x)) if not np.isnan(x) and x > 9999 else ('0' + str(int(x)) if not np.isnan(x) else np.nan), fips)
+        else:
+            return fips
 
     def get_years(self, variable):
         if self.year is None:
@@ -202,7 +210,7 @@ class ObservationsCSVDatabase(CSVDatabase):
     def get_fipsdata(self, variable, year):
         """Return a tuple of the fips codes available and the data for those corresponding fips codes."""
         rows = self.df[self.year_column] == year
-        return self.df[self.fips_column][rows], self.df[variable][rows]
+        return standardize_fips(self.df[self.fips_column][rows]), np.array(self.df[variable][rows])
 
 class InterlevedCSVDatabase(CSVDatabase):
     """
@@ -226,7 +234,7 @@ class InterlevedCSVDatabase(CSVDatabase):
         return super(InterlevedCSVDatabase, self).get_unit(column)
 
     def get_fips(self):
-        return self.df[self.fips_column].unique()
+        return standardize_fips(self.df[self.fips_column].unique())
 
     def get_variables(self):
         variables = list(self.df)
@@ -251,7 +259,7 @@ class InterlevedCSVDatabase(CSVDatabase):
         column, group = tuple(variable.split('.'))
         
         rows = self.df[self.filter_column] == group
-        return self.df[self.fips_column][rows], self.df[column][rows]
+        return standardize_fips(self.df[self.fips_column][rows]), np.array(self.df[column][rows])
 
 class IDReferenceCSVDatabase(MatrixCSVDatabase):
     def __init__(self, filepath1, id_column1, filepath2, id_column2, fips_column2, *args, **kwargs):
@@ -388,7 +396,7 @@ class CombinedDatabase(Database):
                 result[ii] = values[dbfips.index(fips[ii])]
             except Exception as ex:
                 result[ii] = np.nan
-
+                
         return result
 
     def get_indices(self, db, values):

@@ -2654,7 +2654,7 @@
 	"Kent County, TX"	"48263"	176	9678	1818.6
 	"Kerr County, TX"	"48265"	7724	558315	1383.4
 	"Kimble County, TX"	"48267"	731	54422	1343.2
-	"King County, TX"	"48269"	16	3645	439.0 (Unreliable)
+	"King County, TX"	"48269"	16	3645	439.0
 	"Kinney County, TX"	"48271"	434	41601	1043.2
 	"Kleberg County, TX"	"48273"	2801	377728	741.5
 	"Knox County, TX"	"48275"	717	46920	1528.1

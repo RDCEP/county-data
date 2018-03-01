@@ -20,9 +20,11 @@ def get_varyears_2008(df, variable):
         return None
 
 def get_datarows_2008(df, variable, year):
-    yearcolumn = "x%d_%s" % (year, variable)
-    if yearcolumn in list(df):
-        return df[yearcolumn]
+    if year:
+        yearcolumn = "x%d_%s" % (int(year), variable)
+        
+        if yearcolumn in list(df):
+            return df[yearcolumn]
 
     return df[variable]
 
@@ -44,9 +46,10 @@ def get_varyears_2016(df, variable):
         return None
 
 def get_datarows_2016(df, variable, year):
-    yearcolumn = "%s_%d" % (variable, year)
-    if yearcolumn in list(df):
-        return df[yearcolumn]
+    if year:
+        yearcolumn = "%s_%d" % (variable, int(year))
+        if yearcolumn in list(df):
+            return df[yearcolumn]
 
     return df[variable]
 

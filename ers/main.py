@@ -1,6 +1,7 @@
 import re
 import numpy as np
 import pandas as pd
+import database
 from database import Database, ConcatenatedDatabase, localpath
 
 class ERSDatabase(Database):
@@ -25,18 +26,22 @@ class ERSDatabase(Database):
 
     def get_fips(self):
         """Return an ordered list of FIPS codes for the data.  FIPS should always be 5 character strings."""
-        return self.link["FIPS"]
+        return database.standardize_fips(self.link["FIPS"])
 
     def get_years(self, variable):
         """Return a list of years available."""
-        return self.data["year"][self.data["item"] == variable].unique()
+        if variable[:5] == self.crop + '.':
+            variable = variable[5:]
+        years = self.data["year"][self.data["item"] == variable].unique()
+        
+        return map(int, years)
 
     def get_data(self, variable, year):
         """Return an ordered list of data values, in the same order as the FIPS codes."""
         if variable[:5] == self.crop + '.':
             variable = variable[5:]
-        
-        subdf = self.data[(self.data["item"] == variable) & (self.data["year"] == year)]
+            
+        subdf = self.data[(self.data["item"] == variable) & (self.data["year"] == float(year))]
 
         result = np.array([np.nan] * self.link.shape[0])
         for region in self.link["ABBR"].unique():
@@ -48,8 +53,9 @@ class ERSDatabase(Database):
 
         if self.includeus:
             value = subdf.loc[subdf["region"] == "us", "value"].tolist()
-            result[np.isnan(result)] = value[0]
-
+            if len(value) > 0:
+                result[np.isnan(result)] = value[0]
+                
         return result
 
     def get_unit(self, variable):
