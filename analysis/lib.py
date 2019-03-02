@@ -7,7 +7,7 @@ loaded_dbs = {}
 
 def all_variables():
     for modname in all_modules():
-        print modname
+        print(modname)
         
         if modname in loaded_dbs:
             db = loaded_dbs[modname]
