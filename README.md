@@ -1,6 +1,7 @@
 # county-data
 
-Manager of arbitrary collected data on US counties.
+Manager of arbitrary collected data of US counties, or at the
+county-year level.
 
 This is a general system, for anyone who has county-level data and
 wants to include joint analyses.  The subdirectories in this
@@ -14,6 +15,50 @@ The county-data tool requires numpy, pandas, pyyaml, xlrd, and prompt_toolkit.
 ```
 pip install numpy pandas pyyaml xlrd prompt_toolkit
 ```
+
+It has only been tested with python 2.7.
+
+# How to use the data
+
+Depending on your use-case, there are three main ways to use the
+county-data package.
+
+1. If you want to use an individual dataset, you can find the source
+   data in the subdirectory.  Since each dataset is in a different
+   format, it can be helpful to use the standardized interface to
+   extract data from it.  To do so, in python, run the following:
+   ```
+   import sys
+   sys.path.append("<path to county-data>")
+   from <database> import main
+   db = main.load()
+   ```
+   where `<database>` is one of the subdirectories.  Methods on the
+   `db` object then provide access to the data.  The main methods are:
+   
+   * `get_variables()`: A list of the available variables.
+   * `describe_variable(variable)`: Return a text description of a
+     variable.
+   * `get_unit(variable)`: Return the canonical unit for variable.
+   * `get_fips()`: A list of the avalable counties, as FIPS codes.
+   * `get_years()`: A list of the available years (or None for a
+     single year).
+   * `get_data(variable, year)`: Return an ordered list of data
+     values, in the same order as the FIPS codes.
+
+2. If you want to use multiple datasets, it is best to use the export
+   tool, which provides an interactive interface to the data.  The
+   export tool joins the data across different FIPS orders, and
+   exports the data as a CSV.
+   
+3. If you aren't sure what data is most useful, and want to do some
+   data-mining, you can export the most recent year of all the
+   variables in all the datasets across all counties.  To do so, run:
+   ```
+   python -m analysis.alldata
+   ```
+
+   The export takes about 1 hour, and produces a file `results.csv`.
 
 # The export tool
 

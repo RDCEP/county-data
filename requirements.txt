@@ -3,5 +3,5 @@ numpy
 pandas
 pyyaml
 xlrd
-prompt_toolkit
+prompt_toolkit==1.0.15
 
